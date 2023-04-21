@@ -27,3 +27,6 @@ venv/
 *.swo
 *.swn
 *~
+
+differences.txt
+errors.txt
