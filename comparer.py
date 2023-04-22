@@ -8,18 +8,18 @@ import urllib.parse
 from tinytag import TinyTag, TinyTagException
 
 
-def find_matching_files(list1, list2):
+def find_matching_files(list1, list2): #, strict_mode):
     matching_files = []
 
     for item1 in list1:
         for item2 in list2:
-            if metadata_matches(item1, item2) and item1["file_name"] != item2["file_name"]:
+            if metadata_matches(item1, item2) and item1["file_name"] != item2["file_name"]:  #, strict_mode)
                 matching_files.append((item1, item2))
 
     return matching_files
 
 
-def metadata_matches(item1, item2):
+def metadata_matches(item1, item2): #, strict_mode):
     match_count = 0
 
     if item1["title"] == item2["title"] and item1["title"]:
@@ -31,14 +31,18 @@ def metadata_matches(item1, item2):
     if item1["bitrate"] == item2["bitrate"]:
         match_count += 1
 
+    # if strict_mode == False:
     return match_count >= 3 and round(item1["length"], 2) == round(item2["length"], 2)
 
+    # else:
+    #     return match_count >= 4 and round(item1["length"], 2) == round(item2["length"], 2)
 
-def compare_metadata_lists(list1, list2):
+
+def compare_metadata_lists(list1, list2): #, strict_mode):
     missing_in_list1 = [item for item in list2 if not any(
-        metadata_matches(item, input1) for input1 in list1)]
+        metadata_matches(item, input1) for input1 in list1)] #, strict_mode)
     missing_in_list2 = [item for item in list1 if not any(
-        metadata_matches(item, input2) for input2 in list2)]
+        metadata_matches(item, input2) for input2 in list2)] #, strict_mode)
 
     return missing_in_list1, missing_in_list2
 
@@ -131,7 +135,7 @@ def process_input(input_path):
         for file_path in audio_files:
             metadata = extract_audio_metadata(file_path)
 
-            if metadata:  # Check if metadata is not empty
+            if metadata:
                 file_data = {
                     "file_path": file_path,
                     "file_name": os.path.basename(file_path),
@@ -155,13 +159,12 @@ def process_input(input_path):
         sys.exit(1)
 
 
-def copy_possible_duplicates(duplicates):
-    # clear dupes folder
-    if os.path.exists("dupes"):
-        shutil.rmtree("dupes")
+def copy_possible_duplicates(duplicates, folder_path):
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
 
     for index, (item1, item2) in enumerate(duplicates, start=1):
-        new_dir = os.path.join("dupes", str(index))
+        new_dir = os.path.join(folder_path, str(index))
         os.makedirs(new_dir, exist_ok=True)
 
         print(
@@ -182,6 +185,9 @@ if __name__ == "__main__":
     diff_file_name = "diff.txt"
     error_file_name = "errors.txt"
     match_file_name = "matches.txt"
+    duplicate_folder_name = "duplicates"
+
+    # strict_mode = False
 
     if os.path.exists("output.txt"):
         with open("output.txt", "r", encoding='utf-8') as output_files:
@@ -192,6 +198,15 @@ if __name__ == "__main__":
                     error_file_name = line.split("=")[1].strip()
                 elif line.startswith("match_file_name"):
                     match_file_name = line.split("=")[1].strip()
+                elif line.startswith("duplicate_folder_name"):
+                    duplicate_folder_name = line.split("=")[1].strip()
+                # elif line.startswith("strict_mode"):
+                #     strict_mode = line.split("=")[1].strip().lower() == "true"
+
+    if not os.path.exists(diff_file_name) or not os.path.exists(error_file_name) or not os.path.exists(match_file_name) or not os.path.exists(duplicate_folder_name):
+        print("Error: Invalid output file names")
+        print("Please update or remove output.txt")
+        sys.exit(1)
 
     clear_file(diff_file_name)
     clear_file(error_file_name)
@@ -216,10 +231,10 @@ if __name__ == "__main__":
     print(f"Extracted {len(goodLines2_metadata)} files from {input2}\n")
 
     missing_in_input2, missing_in_input1 = compare_metadata_lists(
-        goodLines1_metadata, goodLines2_metadata)
+        goodLines1_metadata, goodLines2_metadata) #, strict_mode)
 
     matching_files = find_matching_files(
-        goodLines1_metadata, goodLines2_metadata)
+        goodLines1_metadata, goodLines2_metadata) #, strict_mode)
 
     if not missing_in_input1 and not missing_in_input2:
         print("No differences found!")
@@ -281,7 +296,7 @@ if __name__ == "__main__":
 
         if copy_duplicates.lower() == "y":
             print("\nCopying duplicates...")
-            copy_possible_duplicates(matching_files)
+            copy_possible_duplicates(matching_files, duplicate_folder_name)
             print("\nCopied duplicates to new folders in the project directory")
 
     if os.path.exists(error_file_name):
