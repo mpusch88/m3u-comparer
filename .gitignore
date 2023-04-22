@@ -28,7 +28,7 @@ venv/
 *.swn
 *~
 
-differences.txt
+diff.txt
 errors.txt
 matches.txt
 

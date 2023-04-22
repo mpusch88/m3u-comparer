@@ -28,7 +28,7 @@ node_modules/*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-differences.txt
+diff.txt
 errors.txt
 matches.txt
 dupes/*
