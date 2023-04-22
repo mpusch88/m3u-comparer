@@ -30,3 +30,6 @@ venv/
 
 differences.txt
 errors.txt
+matches.txt
+
+dupes/*
