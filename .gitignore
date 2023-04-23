@@ -31,5 +31,6 @@ venv/
 diff.txt
 errors.txt
 matches.txt
+similar.txt
 
 duplicates

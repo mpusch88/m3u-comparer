@@ -1,0 +1,6 @@
+diff_file_name = diff.txt
+error_file_name = errors.txt
+similar_file_name = similar.txt
+match_file_name = matches.txt
+duplicate_folder_name = duplicates
+strict_mode=False
