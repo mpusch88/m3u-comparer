@@ -1,4 +1,4 @@
-# m3u-comparer (v1.0.0)
+# m3u-comparer
 
 m3u-comparer is a Python script designed to compare two m3u / m3u8 playlists or directories containing audio files, highlighting differences in metadata while disregarding file paths. Directories selected as an input can optionally be searched recursively. By evaluating metadata attributes like artist, title, album, length, and bitrate, this tool effectively identifies disparities between two sets of audio files, while also detecting files that contain the same metadata but different file names. This tool is ideal for anyone with a large collection of audio files that they want to organize - it pairs with well tools such as OneTagger to quickly clean your audio library.
 
