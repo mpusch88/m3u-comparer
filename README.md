@@ -30,7 +30,7 @@ Additionally, m3u-comparer can be used to search a single playlist or folder for
 - Detect duplicate files with matching metadata and file names
 - Generate detailed output files (playlist differences, possible duplicates, exact matches, and errors)
 - Optionally copy potential duplicates to new directories for easy comparison
-- Manually set output file names, directories, and strict mode using settings.txt
+- Manually set output file names, directories, and strict mode in settings.py
 
 ## Requirements
 
@@ -84,7 +84,7 @@ The program will output the following files:
 
 ### Program Settings
 
-The program can be configured using the settings.txt file. The settings.txt file contains the following variables:
+The program can be configured using the settings.py file. The file contains the following variables:
 
 - strict_mode: a boolean value that determines whether the program is in strict mode or not. In strict mode, the program increases the strictness of the metadata comparison, requiring that all metadata attributes match exactly for files to be considered possible duplicates. By default, the program is not in strict mode.
 - diff_file_name: stores differences between the two inputs. By default, the file is called "diff.txt".
