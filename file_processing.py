@@ -2,6 +2,7 @@ import os
 import sys
 import urllib.parse
 from tqdm import tqdm
+from itertools import chain
 from utils import extract_audio_metadata, scan_folder_for_audio_files
 from settings import errors_file_name
 
@@ -44,21 +45,27 @@ def metadata_matches(item1, item2, strict_mode):
         return match_count >= 4 and round(item1["length"], 2) == round(item2["length"], 2)
 
 
-def compare_metadata_lists(list1, list2, strict_mode):
+def compare_metadata_lists(list1, list2, strict_mode, matching_files):
     missing_in_list1 = []
     missing_in_list2 = []
 
-    for item in tqdm(list2, desc='Comparing first list'):
-        if not any(metadata_matches(item, input1, strict_mode) for input1 in list1):
-            missing_in_list1.append(item)
+    if list1 == list2:
+        for item in tqdm(list1, desc='Searching for duplicates'):
+            if not any(metadata_matches(item, other, strict_mode) for other in list1 if other != item):
+                missing_in_list1.append(item)
+    else:
+        combined_list = list(chain(list2, list1))
+        list1_flags = [False] * len(list1)
+        list2_flags = [False] * len(list2)
 
-    print()
+        for i, item in enumerate(tqdm(combined_list, desc='Searching both lists for duplicates')):
+            if i < len(list2) and not list2_flags[i] and not any(metadata_matches(item, input1, strict_mode) for input1 in list1):
+                missing_in_list1.append(item)
+                list2_flags[i] = True
+            elif i >= len(list2) and not list1_flags[i - len(list2)] and item not in matching_files and not any(metadata_matches(item, input2, strict_mode) for input2 in list2):
+                missing_in_list2.append(item)
+                list1_flags[i - len(list2)] = True
 
-    for item in tqdm(list1, desc='Comparing second list'):
-        if not any(metadata_matches(item, input2, strict_mode) for input2 in list2):
-            missing_in_list2.append(item)
-
-    print()
     return missing_in_list1, missing_in_list2
 
 
@@ -75,7 +82,7 @@ def process_input(input_path, recursive):
 
         files_with_metadata = []
 
-        for file_path in tqdm(audio_files, desc=f'Processing {input_path}'):
+        for file_path in tqdm(audio_files, desc=f'Getting files from {input_path}'):
             metadata = extract_audio_metadata(file_path)
 
             if metadata:

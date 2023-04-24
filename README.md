@@ -37,13 +37,14 @@ Additionally, m3u-comparer can be used to search a single playlist or folder for
 - Python 3.6 or higher
 - tinytag Python package (Used for reading file metadata)
 - tqdm Python package (Used for progress bars)
+- itertools Python package (Used for comparing two inputs)
 
 ## Installation
 
 1. Install the required packages:
 
    ```bash
-   pip install tinytag tqdm
+   pip install tinytag tqdm itertools
    ```
 
 2. Clone the repository or download the project files:
@@ -78,9 +79,7 @@ The program will output the following files:
 4. errors.txt: a list of errors encountered while processing the inputs.
 5. 'duplicates' folder: a folder composed of subfolders that contain possible duplicates.
 
-
 <b>Warning: Output files are overwritten each time the program is run. If user selects to copy potential duplicates, target duplicates directory will be cleared.</b>
-
 
 ### Program Settings
 

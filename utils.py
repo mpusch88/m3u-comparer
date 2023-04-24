@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+from tqdm import tqdm
 from tinytag import TinyTag, TinyTagException
 from settings import errors_file_name
 
@@ -15,12 +16,9 @@ def copy_possible_duplicates(duplicates, folder_path):
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
 
-    for index, (item1, item2) in enumerate(duplicates, start=1):
+    for index, (item1, item2) in enumerate(tqdm(duplicates, desc="Copying possible duplicates"), start=1):
         new_dir = os.path.join(folder_path, str(index))
         os.makedirs(new_dir, exist_ok=True)
-
-        print(
-            f"  Copying possible duplicate pair {index} to \\{new_dir}\\")
 
         shutil.copy2(item1["file_path"], os.path.join(
             new_dir, item1["file_name"]))
