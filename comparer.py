@@ -77,7 +77,7 @@ def extract_audio_metadata(file_path):
         metadata["bitrate"] = audio.bitrate if audio.bitrate else 0
 
     except TinyTagException as e:
-        with open(error_file_name, "a", encoding='utf-8') as error_file:
+        with open(errors_file_name, "a", encoding='utf-8') as error_file:
             error_file.write(f"Error processing {file_path}: {e}\n")
 
     return metadata
@@ -117,12 +117,12 @@ def extract_files_with_metadata(lines):
                     files_with_metadata.append(file_data)
 
                 # else:
-                #     with open(error_file_name, "a", encoding='utf-8') as error_file:
+                #     with open(errors_file_name, "a", encoding='utf-8') as error_file:
                 #         error_file.write(
                 #             f"Error processing {file_path}: Invalid audio file\n")
 
             else:
-                with open(error_file_name, "a", encoding='utf-8') as error_file:
+                with open(errors_file_name, "a", encoding='utf-8') as error_file:
                     error_file.write(
                         f"Error processing {file_path}: File does not exist\n")
 
@@ -174,7 +174,7 @@ def process_input(input_path, recursive):
                 files_with_metadata.append(file_data)
 
             # else:
-            #     with open(error_file_name, "a", encoding='utf-8') as error_file:
+            #     with open(errors_file_name, "a", encoding='utf-8') as error_file:
             #         error_file.write(
             #             f"Error processing {file_path}: Invalid audio file\n")
 
@@ -206,10 +206,10 @@ if __name__ == "__main__":
     print("\nm3u-comparer v1.0.0")
 
     diff_file_name = "diff.txt"
-    error_file_name = "errors.txt"
+    errors_file_name = "errors.txt"
     similar_file_name = "similar.txt"
-    match_file_name = "matches.txt"
-    duplicate_folder_name = "duplicates"
+    matches_file_name = "matches.txt"
+    duplicates_dir = "duplicates"
 
     strict_mode = False
     recursive1, recursive2 = False, False
@@ -219,25 +219,25 @@ if __name__ == "__main__":
             for line in output_files:
                 if line.startswith("diff_file_name"):
                     diff_file_name = line.split("=")[1].strip()
-                elif line.startswith("error_file_name"):
-                    error_file_name = line.split("=")[1].strip()
+                elif line.startswith("errors_file_name"):
+                    errors_file_name = line.split("=")[1].strip()
                 elif line.startswith("similar_file_name"):
                     similar_file_name = line.split("=")[1].strip()
-                elif line.startswith("match_file_name"):
-                    match_file_name = line.split("=")[1].strip()
-                elif line.startswith("duplicate_folder_name"):
-                    duplicate_folder_name = line.split("=")[1].strip()
+                elif line.startswith("matches_file_name"):
+                    matches_file_name = line.split("=")[1].strip()
+                elif line.startswith("duplicates_dir"):
+                    duplicates_dir = line.split("=")[1].strip()
                 elif line.startswith("strict_mode"):
                     strict_mode = line.split("=")[1].strip().lower() == "true"
 
-    if len(sys.argv) != 3:
-        print("Error: Invalid number of arguments")
-        print(
-            "\n\nUsage: python3 comparer.py <m3u8-input1/folder1> <m3u8-input2/folder2>\n")
+    if len(sys.argv) != 2 and len(sys.argv) != 3:
+        print("\nError: Invalid number of arguments")
+        print("\nUsage:\n\n  python3 comparer.py <m3u8-input1/folder1> <m3u8-input2/folder2>\n  python3 comparer.py <m3u8-input1/folder1>")
         print("\nExiting...")
         sys.exit(1)
 
-    input1, input2 = sys.argv[1], sys.argv[2]
+    input1 = sys.argv[1]
+    input2 = sys.argv[2] if len(sys.argv) == 3 else input1
 
     print(f"    Strict mode: {strict_mode}\n")
 
@@ -250,8 +250,8 @@ if __name__ == "__main__":
             f"Scan {input2} recursively? ('Y' or 'y')   ").lower() == "y"
 
     clear_file(diff_file_name)
-    clear_file(error_file_name)
-    clear_file(match_file_name)
+    clear_file(errors_file_name)
+    clear_file(matches_file_name)
     clear_file(similar_file_name)
 
     print(
@@ -297,13 +297,13 @@ if __name__ == "__main__":
         print(f"\nWrote results to {diff_file_name}")
 
     if matching_files:
-        with open(match_file_name, "w", encoding='utf-8') as match_file:
+        with open(matches_file_name, "w", encoding='utf-8') as match_file:
             match_file.write(f"Exact matches: {len(matching_files)}\n\n")
             for item1, item2 in matching_files:
                 match_file.write(f"  {item1['file_name']}  --  {input1}\n")
                 match_file.write(f"  {item2['file_name']}  --  {input2}\n\n")
 
-        print(f"\nWrote exact matches to {match_file_name}")
+        print(f"\nWrote exact matches to {matches_file_name}")
 
     if similar_files:
         with open(similar_file_name, "w", encoding='utf-8') as similar_file:
@@ -336,10 +336,10 @@ if __name__ == "__main__":
 
         if copy_duplicates.lower() == "y":
             print("\nCopying possible duplicates...\n")
-            copy_possible_duplicates(similar_files, duplicate_folder_name)
+            copy_possible_duplicates(similar_files, duplicates_dir)
             print("\nCopied possible duplicates to new folders in the project directory")
 
-    if os.path.exists(error_file_name):
-        with open(error_file_name, "r", encoding='utf-8') as error_file:
+    if os.path.exists(errors_file_name):
+        with open(errors_file_name, "r", encoding='utf-8') as error_file:
             if len(error_file.readlines()) > 0:
-                print(f"\n\nErrors written to {error_file_name}")
+                print(f"\n\nErrors written to {errors_file_name}")
