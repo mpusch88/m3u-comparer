@@ -21,22 +21,26 @@ if __name__ == "__main__":
     input2 = sys.argv[2] if len(sys.argv) == 3 else input1
 
     print(f"\nStrict mode: {strict_mode}")
-    print(f"\nComparing inputs:\n")
-    print(f"    {input1}")
-    print(f"    {input2}\n")
+
+    if input1 == input2:
+        print(f"\n  Comparing files in {input1}\n")
+    else:
+        print("\nComparing inputs:\n")
+        print(f"    {input1}")
+        print(f"    {input2}\n")
 
     recursive1, recursive2 = False, False
 
     if os.path.isdir(input1):
         recursive1 = input(
-            f"Scan {input1} recursively? ('Y' or 'y')   ").lower() == "y"
+            f"Scan {input1} recursively? ('Y' or 'y'):   ").lower() == "y"
 
         if len(sys.argv) == 2:
             recursive2 = recursive1
 
         elif len(sys.argv) == 3 and os.path.isdir(input2):
             recursive2 = input(
-                f"Scan {input2} recursively? ('Y' or 'y')   ").lower() == "y"
+                f"Scan {input2} recursively? ('Y' or 'y'):   ").lower() == "y"
 
     clear_file(diff_file_name)
     clear_file(errors_file_name)
@@ -53,7 +57,6 @@ if __name__ == "__main__":
         goodLines2_metadata = goodLines1_metadata
 
     if goodLines1_metadata == [] and goodLines2_metadata == []:
-        print("\n  No files found in either input!")
         print("\nExiting...")
         sys.exit(1)
 
@@ -69,6 +72,7 @@ if __name__ == "__main__":
     else:
         print(f"\n  Found {len(goodLines1_metadata)} files in {input1}\n")
 
+    # TODO: Find exact matches and potential duplicates
     matching_files, similar_files = find_matching_and_similar_files(
         goodLines1_metadata, goodLines2_metadata, strict_mode)
 

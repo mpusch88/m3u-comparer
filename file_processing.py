@@ -1,10 +1,11 @@
 import os
 import sys
+import keyboard
 import urllib.parse
 from tqdm import tqdm
 from itertools import chain
-from utils import extract_audio_metadata, scan_folder_for_audio_files
 from settings import errors_file_name
+from utils import extract_audio_metadata, scan_folder_for_audio_files, is_escaped
 
 
 def find_matching_and_similar_files(list1, list2, strict_mode):
@@ -13,6 +14,10 @@ def find_matching_and_similar_files(list1, list2, strict_mode):
     added_pairs = set()
 
     for item1 in tqdm(list1, desc='Finding matching and similar files'):
+        if is_escaped():
+            print("\nCancelling...")
+            break
+
         for item2 in list2:
             if metadata_matches(item1, item2, strict_mode):
                 pair_key = frozenset([item1['file_name'], item2['file_name']])
@@ -51,6 +56,10 @@ def compare_metadata_lists(list1, list2, strict_mode, matching_files):
 
     if list1 == list2:
         for item in tqdm(list1, desc='Searching for duplicates'):
+            if is_escaped():
+                print("\nCancelling...")
+                break
+
             if not any(metadata_matches(item, other, strict_mode) for other in list1 if other != item):
                 missing_in_list1.append(item)
     else:
@@ -59,6 +68,9 @@ def compare_metadata_lists(list1, list2, strict_mode, matching_files):
         list2_flags = [False] * len(list2)
 
         for i, item in enumerate(tqdm(combined_list, desc='Searching both lists for duplicates')):
+            if is_escaped():
+                print("\nCancelling...")
+                break
             if i < len(list2) and not list2_flags[i] and not any(metadata_matches(item, input1, strict_mode) for input1 in list1):
                 missing_in_list1.append(item)
                 list2_flags[i] = True
@@ -98,6 +110,9 @@ def process_input(input_path, recursive):
 
                 files_with_metadata.append(file_data)
 
+            if is_escaped():
+                print("\nCancelling...")
+                break
             # else:
             #     with open(errors_file_name, "a", encoding='utf-8') as error_file:
             #         error_file.write(

@@ -1,9 +1,14 @@
 import os
 import glob
 import shutil
+import keyboard
 from tqdm import tqdm
 from tinytag import TinyTag, TinyTagException
 from settings import errors_file_name
+
+
+def is_escaped():
+    return keyboard.is_pressed('esc')
 
 
 def clear_file(file_path):
@@ -17,6 +22,10 @@ def copy_possible_duplicates(duplicates, folder_path):
         shutil.rmtree(folder_path)
 
     for index, (item1, item2) in enumerate(tqdm(duplicates, desc="Copying possible duplicates"), start=1):
+        if is_escaped():
+            print("\nCancelling...")
+            break
+
         new_dir = os.path.join(folder_path, str(index))
         os.makedirs(new_dir, exist_ok=True)
 
