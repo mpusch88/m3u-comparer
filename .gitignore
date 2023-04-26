@@ -5,10 +5,8 @@ __pycache__/
 *.pyd
 
 # Output files
-output_*
-context_*
-output.txt
-context.txt
+context/
+output/
 
 # Unit test artifacts
 .coverage
@@ -28,9 +26,5 @@ venv/
 *.swn
 *~
 
-diff.txt
-errors.txt
-matches.txt
-similar.txt
-
-duplicates/
+.vscode/
+.vs/
