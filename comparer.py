@@ -2,9 +2,9 @@
 
 import os
 import sys
-from settings import diff_file_name, errors_file_name, similar_file_name, matches_file_name, duplicates_dir, strict_mode
-from utils import clear_file, copy_possible_duplicates
-from file_processing import process_input, compare_metadata_lists, find_matching_and_similar_files
+from src.utils import clear_file, copy_possible_duplicates, verify_error_file
+from src.file_processing import process_input, compare_metadata_lists, find_matching_and_similar_files
+from src.settings import diff_file_name, errors_file_name, similar_file_name, matches_file_name, duplicates_dir, strict_mode
 
 
 if __name__ == "__main__":
@@ -20,12 +20,12 @@ if __name__ == "__main__":
     input1 = sys.argv[1]
     input2 = sys.argv[2] if len(sys.argv) == 3 else input1
 
-    print(f"\nStrict mode: {strict_mode}")
+    print(f"\n  Strict mode: {strict_mode}")
 
     if input1 == input2:
         print(f"\n  Comparing files in {input1}\n")
     else:
-        print("\nComparing inputs:\n")
+        print("\n  Comparing inputs:\n")
         print(f"    {input1}")
         print(f"    {input2}\n")
 
@@ -42,6 +42,7 @@ if __name__ == "__main__":
             recursive2 = input(
                 f"Scan {input2} recursively? ('Y' or 'y'):   ").lower() == "y"
 
+    verify_error_file()
     clear_file(diff_file_name)
     clear_file(errors_file_name)
     clear_file(matches_file_name)
@@ -144,7 +145,7 @@ if __name__ == "__main__":
         print(f"  Wrote possible duplicates to {similar_file_name}")
 
         copy_duplicates = input(
-            "\nCopy possible duplicates to new folders in the project directory? (y/n): ")
+            f"\nCopy {len(similar_files)} possible duplicates to new folders in the output directory? (y/n): ")
 
         if copy_duplicates.lower() == "y":
             print("")
@@ -153,6 +154,6 @@ if __name__ == "__main__":
     if os.path.exists(errors_file_name):
         with open(errors_file_name, "r", encoding='utf-8') as error_file:
             if len(error_file.readlines()) > 0:
-                print(f"\nErrors written to {errors_file_name}")
+                print(f"\n  Errors written to {errors_file_name}")
 
     print("\nExiting...")

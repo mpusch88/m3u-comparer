@@ -4,7 +4,7 @@ import shutil
 import keyboard
 from tqdm import tqdm
 from tinytag import TinyTag, TinyTagException
-from settings import errors_file_name
+from src.settings import errors_file_name
 
 
 def is_escaped():
@@ -16,6 +16,15 @@ def clear_file(file_path):
         with open(file_path, "w", encoding='utf-8') as file:
             file.write("")
 
+
+def verify_error_file():
+    if not os.path.exists(errors_file_name):
+        os.mkdir(os.path.dirname(errors_file_name))
+
+
+def error_count():
+    with open(errors_file_name, "r", encoding='utf-8') as error_file:
+        print(f"\n  Wrote {len(error_file.readlines())} errors to {errors_file_name}")
 
 def copy_possible_duplicates(duplicates, folder_path):
     if os.path.exists(folder_path):
@@ -66,3 +75,4 @@ def scan_folder_for_audio_files(folder_path, recursive):
         audio_files.extend(files)
 
     return audio_files
+

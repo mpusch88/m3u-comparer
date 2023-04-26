@@ -1,11 +1,10 @@
 import os
 import sys
-import keyboard
 import urllib.parse
-from tqdm import tqdm
 from itertools import chain
-from settings import errors_file_name
-from utils import extract_audio_metadata, scan_folder_for_audio_files, is_escaped
+from tqdm import tqdm
+from src.settings import errors_file_name
+from src.utils import extract_audio_metadata, scan_folder_for_audio_files, is_escaped, error_count
 
 
 def find_matching_and_similar_files(list1, list2, strict_mode):
@@ -25,7 +24,9 @@ def find_matching_and_similar_files(list1, list2, strict_mode):
                     matching_files.append((item1, item2))
                 elif pair_key not in added_pairs:
                     similar_files.append((item1, item2))
-                    # avoids copying the same file twice - possibly move elsewhere to add pairs to txt file
+
+                    # avoids copying the same file twice
+                    # TODO: possibly move elsewhere to add pairs to txt file
                     added_pairs.add(pair_key)
 
     return matching_files, similar_files
@@ -94,7 +95,15 @@ def process_input(input_path, recursive):
 
         files_with_metadata = []
 
+
+        # TODO: ensure needed
+        if not audio_files:
+            print(f"  No audio files found in {input_path}")
+            return files_with_metadata
+
+
         for file_path in tqdm(audio_files, desc=f'Getting files from {input_path}'):
+            file_path = file_path.replace("/", "\\")
             metadata = extract_audio_metadata(file_path)
 
             if metadata:
@@ -113,10 +122,12 @@ def process_input(input_path, recursive):
             if is_escaped():
                 print("\nCancelling...")
                 break
-            # else:
-            #     with open(errors_file_name, "a", encoding='utf-8') as error_file:
-            #         error_file.write(
-            #             f"Error processing {file_path}: Invalid audio file\n")
+            else:
+                with open(errors_file_name, "a", encoding='utf-8') as error_file:
+                    error_file.write(
+                        f"Error processing {file_path}: Invalid audio file\n")
+
+        error_count()
 
         return files_with_metadata
     else:
@@ -136,7 +147,9 @@ def extract_files_with_metadata(lines):
             file_path = os.path.normpath(line).replace("\\", "/")
 
             if os.path.isfile(file_path):
+                file_path = file_path.replace("/", "\\")
                 metadata = extract_audio_metadata(file_path)
+
 
                 if metadata:
                     file_data = {
@@ -151,14 +164,16 @@ def extract_files_with_metadata(lines):
 
                     files_with_metadata.append(file_data)
 
-                # else:
-                #     with open(errors_file_name, "a", encoding='utf-8') as error_file:
-                #         error_file.write(
-                #             f"Error processing {file_path}: Invalid audio file\n")
+                else:
+                    with open(errors_file_name, "a", encoding='utf-8') as error_file:
+                        error_file.write(
+                            f"Error processing {file_path}: Invalid audio file\n")
 
             else:
                 with open(errors_file_name, "a", encoding='utf-8') as error_file:
                     error_file.write(
                         f"Error processing {file_path}: File does not exist\n")
+
+    error_count()
 
     return files_with_metadata
