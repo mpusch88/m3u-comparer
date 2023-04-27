@@ -3,8 +3,19 @@
 import os
 import sys
 from src.utils import clear_file, copy_possible_duplicates, verify_error_file
-from src.file_processing import process_input, compare_metadata_lists, find_matching_and_similar_files
-from src.settings import diff_file_name, errors_file_name, similar_file_name, matches_file_name, duplicates_dir, strict_mode
+from src.file_processing import (
+    process_input,
+    compare_metadata_lists,
+    find_matching_and_similar_files,
+)
+from src.settings import (
+    diff_file_name,
+    errors_file_name,
+    similar_file_name,
+    matches_file_name,
+    duplicates_dir,
+    strict_mode,
+)
 
 
 if __name__ == "__main__":
@@ -13,7 +24,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("\nError: Invalid number of arguments")
         print(
-            "\nUsage:\n\n  python3 comparer.py <m3u8-input1/folder1> [<m3u8-input2/folder2>]\n")
+            "\nUsage:\n\n  python3 comparer.py <m3u8-input1/folder1> [<m3u8-input2/folder2>]\n"
+        )
         print("\nExiting...")
         sys.exit(1)
 
@@ -32,15 +44,17 @@ if __name__ == "__main__":
     recursive1, recursive2 = False, False
 
     if os.path.isdir(input1):
-        recursive1 = input(
-            f"Scan {input1} recursively? ('Y' or 'y'):   ").lower() == "y"
+        recursive1 = (
+            input(f"Scan {input1} recursively? ('Y' or 'y'):   ").lower() == "y"
+        )
 
         if len(sys.argv) == 2:
             recursive2 = recursive1
 
         elif len(sys.argv) == 3 and os.path.isdir(input2):
-            recursive2 = input(
-                f"Scan {input2} recursively? ('Y' or 'y'):   ").lower() == "y"
+            recursive2 = (
+                input(f"Scan {input2} recursively? ('Y' or 'y'):   ").lower() == "y"
+            )
 
     verify_error_file()
     clear_file(diff_file_name)
@@ -75,23 +89,27 @@ if __name__ == "__main__":
 
     # TODO: Find exact matches and potential duplicates
     matching_files, similar_files = find_matching_and_similar_files(
-        goodLines1_metadata, goodLines2_metadata, strict_mode)
+        goodLines1_metadata, goodLines2_metadata, strict_mode
+    )
 
     print()
 
     missing_in_input2, missing_in_input1 = compare_metadata_lists(
-        goodLines1_metadata, goodLines2_metadata, strict_mode, matching_files)
+        goodLines1_metadata, goodLines2_metadata, strict_mode, matching_files
+    )
 
     if not missing_in_input1 and not missing_in_input2:
         print("\n  No differences between inputs found!")
     else:
-        with open(diff_file_name, "w", encoding='utf-8') as diff_file:
+        with open(diff_file_name, "w", encoding="utf-8") as diff_file:
             diff_file.write(
-                f"Differences found: {len(missing_in_input1 + missing_in_input2)}\n\n")
+                f"Differences found: {len(missing_in_input1 + missing_in_input2)}\n\n"
+            )
 
             if len(missing_in_input1) > 0:
                 diff_file.write(
-                    f"    {len(missing_in_input1)} files not in {input1}:\n\n")
+                    f"    {len(missing_in_input1)} files not in {input1}:\n\n"
+                )
                 for metadata in missing_in_input1:
                     diff_file.write(f"      {metadata['file_name']}\n")
 
@@ -99,7 +117,8 @@ if __name__ == "__main__":
 
             if len(missing_in_input2) > 0:
                 diff_file.write(
-                    f"    {len(missing_in_input2)} files not in {input2}:\n\n")
+                    f"    {len(missing_in_input2)} files not in {input2}:\n\n"
+                )
                 for metadata in missing_in_input2:
                     diff_file.write(f"      {metadata['file_name']}\n")
 
@@ -108,7 +127,7 @@ if __name__ == "__main__":
     if not matching_files:
         print("  No exact matches found!")
     else:
-        with open(matches_file_name, "w", encoding='utf-8') as match_file:
+        with open(matches_file_name, "w", encoding="utf-8") as match_file:
             match_file.write(f"Exact matches: {len(matching_files)}\n\n")
             for item1, item2 in matching_files:
                 match_file.write(f"  {item1['file_name']}  --  {input1}\n")
@@ -119,40 +138,40 @@ if __name__ == "__main__":
     if not similar_files:
         print("  No potential duplicates found!")
     else:
-        with open(similar_file_name, "w", encoding='utf-8') as similar_file:
+        with open(similar_file_name, "w", encoding="utf-8") as similar_file:
             similar_count_line = f"Potential duplicates: {len(similar_files)}\n\n"
             similar_file.write(similar_count_line)
             for item1, item2 in similar_files:
                 similar_file.write(
-                    f"{item1['file_name']} in {input1} matches {item2['file_name']} in {input2}\n")
+                    f"{item1['file_name']} in {input1} matches {item2['file_name']} in {input2}\n"
+                )
 
                 similar_file.write(f"    {item1['file_name']} in {input1}:\n")
                 similar_file.write(f"        Title: {item1['title']}\n")
                 similar_file.write(f"        Artist: {item1['artist']}\n")
                 similar_file.write(f"        Album: {item1['album']}\n")
-                similar_file.write(
-                    f"        Length: {round(item1['length'], 2)}\n")
+                similar_file.write(f"        Length: {round(item1['length'], 2)}\n")
                 similar_file.write(f"        Bitrate: {item1['bitrate']}\n\n")
 
                 similar_file.write(f"    {item2['file_name']} in {input2}:\n")
                 similar_file.write(f"        Title: {item2['title']}\n")
                 similar_file.write(f"        Artist: {item2['artist']}\n")
                 similar_file.write(f"        Album: {item2['album']}\n")
-                similar_file.write(
-                    f"        Length: {round(item2['length'], 2)}\n")
+                similar_file.write(f"        Length: {round(item2['length'], 2)}\n")
                 similar_file.write(f"        Bitrate: {item2['bitrate']}\n\n")
 
         print(f"  Wrote possible duplicates to {similar_file_name}")
 
         copy_duplicates = input(
-            f"\nCopy {len(similar_files)} possible duplicates to new folders in the output directory? (y/n): ")
+            f"\nCopy {len(similar_files)} possible duplicates to new folders in the output directory? (y/n): "
+        )
 
         if copy_duplicates.lower() == "y":
             print("")
             copy_possible_duplicates(similar_files, duplicates_dir)
 
     if os.path.exists(errors_file_name):
-        with open(errors_file_name, "r", encoding='utf-8') as error_file:
+        with open(errors_file_name, "r", encoding="utf-8") as error_file:
             if len(error_file.readlines()) > 0:
                 print(f"\n  Errors written to {errors_file_name}")
 

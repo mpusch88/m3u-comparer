@@ -8,12 +8,12 @@ from src.settings import errors_file_name
 
 
 def is_escaped():
-    return keyboard.is_pressed('esc')
+    return keyboard.is_pressed("esc")
 
 
 def clear_file(file_path):
     if os.path.exists(file_path):
-        with open(file_path, "w", encoding='utf-8') as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write("")
 
 
@@ -23,14 +23,17 @@ def verify_error_file():
 
 
 def error_count():
-    with open(errors_file_name, "r", encoding='utf-8') as error_file:
+    with open(errors_file_name, "r", encoding="utf-8") as error_file:
         print(f"\n  Wrote {len(error_file.readlines())} errors to {errors_file_name}")
+
 
 def copy_possible_duplicates(duplicates, folder_path):
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
 
-    for index, (item1, item2) in enumerate(tqdm(duplicates, desc="Copying possible duplicates"), start=1):
+    for index, (item1, item2) in enumerate(
+        tqdm(duplicates, desc="Copying possible duplicates"), start=1
+    ):
         if is_escaped():
             print("\nCancelling...")
             break
@@ -38,10 +41,8 @@ def copy_possible_duplicates(duplicates, folder_path):
         new_dir = os.path.join(folder_path, str(index))
         os.makedirs(new_dir, exist_ok=True)
 
-        shutil.copy2(item1["file_path"], os.path.join(
-            new_dir, item1["file_name"]))
-        shutil.copy2(item2["file_path"], os.path.join(
-            new_dir, item2["file_name"]))
+        shutil.copy2(item1["file_path"], os.path.join(new_dir, item1["file_name"]))
+        shutil.copy2(item2["file_path"], os.path.join(new_dir, item2["file_name"]))
 
 
 def extract_audio_metadata(file_path):
@@ -56,7 +57,7 @@ def extract_audio_metadata(file_path):
         metadata["bitrate"] = audio.bitrate if audio.bitrate else 0
 
     except TinyTagException as e:
-        with open(errors_file_name, "a", encoding='utf-8') as error_file:
+        with open(errors_file_name, "a", encoding="utf-8") as error_file:
             error_file.write(f"Error processing {file_path}: {e}\n")
 
     return metadata
@@ -65,14 +66,12 @@ def extract_audio_metadata(file_path):
 def scan_folder_for_audio_files(folder_path, recursive):
     audio_files = []
 
-    for ext in ('*.mp3', '*.m4a', '*.flac', '*.wav', '*.ogg'):
+    for ext in ("*.mp3", "*.m4a", "*.flac", "*.wav", "*.ogg"):
         if recursive:
-            files = glob.glob(os.path.join(
-                folder_path, '**', ext), recursive=True)
+            files = glob.glob(os.path.join(folder_path, "**", ext), recursive=True)
         else:
             files = glob.glob(os.path.join(folder_path, ext))
 
         audio_files.extend(files)
 
     return audio_files
-
