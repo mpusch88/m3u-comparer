@@ -75,24 +75,6 @@ Use the settings.py file to configure the script's behavior. You can set variabl
 
 Contributions are welcome! Please fork the repository, create a new branch for your feature or bugfix, commit your changes with clear and concise messages, and open a pull request with a detailed description of your changes.
 
-## Context
-
-This project uses a modified version of  <https://github.com/mpoon/gpt-repository-loader> to maintain up to date code context for use with ChatGPT / GPT4.
-
-To use the context loader, clone the following repository into the same folder containig your m3u-comparer repository:
-
-```bash
-git clone https://github.com/mpusch88/gpt-repository-loader
-```
-
-Then, navigate to the gpt-repository-loader folder and run the gpt_repository_loader.py script with the following arguments:
-
-```bash
-python gpt_repository_loader.py ../m3u-comparer -p ../m3u-comparer/.preamble -o ../m3u-comparer/context/context.txt -t 4000 -m 10
-```
-
-*Note: if you don't have access to GPT 4, using -t 2000 is recommended.*
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
